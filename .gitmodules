@@ -1,13 +1,11 @@
 [submodule "submodules/simple-knn"]
 	path = submodules/simple-knn
-	url = https://gitlab.inria.fr/bkerbl/simple-knn.git
+	branch = rocm
+	url = https://github.com/expenses/simple-knn
 [submodule "submodules/diff-gaussian-rasterization"]
 	path = submodules/diff-gaussian-rasterization
+	branch = rocm
 	url = https://github.com/expenses/diff-gaussian-rasterization
 [submodule "SIBR_viewers"]
 	path = SIBR_viewers
 	url = https://gitlab.inria.fr/sibr/sibr_core.git
-[submodule "submodules/diff-gaussian-rasterization/"]
-	branch = rocm
-[submodule "submodules/simple-knn/"]
-	branch = rocm
