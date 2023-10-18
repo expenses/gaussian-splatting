@@ -22,13 +22,24 @@ from tqdm import tqdm
 from utils.image_utils import psnr
 from argparse import ArgumentParser, Namespace
 from arguments import ModelParams, PipelineParams, OptimizationParams
+from torch.profiler import profile, record_function, ProfilerActivity
 try:
     from torch.utils.tensorboard import SummaryWriter
     TENSORBOARD_FOUND = True
 except ImportError:
     TENSORBOARD_FOUND = False
 
+def trace_handler(p):
+    p.export_chrome_trace("trace_" + str(p.step_num) + ".json")
+
 def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoint_iterations, checkpoint, debug_from):
+    prof = profile(activities=[ProfilerActivity.CUDA, ProfilerActivity.CPU], record_shapes=True, schedule=torch.profiler.schedule(
+        wait = 0,
+        warmup=9,
+        active=1),
+    on_trace_ready=trace_handler)
+    prof.start()
+
     first_iter = 0
     tb_writer = prepare_output_and_logger(dataset)
     gaussians = GaussianModel(dataset.sh_degree)
@@ -127,6 +138,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
             if (iteration in checkpoint_iterations):
                 print("\n[ITER {}] Saving Checkpoint".format(iteration))
                 torch.save((gaussians.capture(), iteration), scene.model_path + "/chkpnt" + str(iteration) + ".pth")
+        prof.step()
 
 def prepare_output_and_logger(args):    
     if not args.model_path:
